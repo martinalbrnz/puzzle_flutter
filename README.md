@@ -1,6 +1,12 @@
 # classic_puzzle_flutter
 
-A new Flutter project.
+A classic puzzle game with numbers.
+The "\_" GridTile represents a free space. You can move an adyacent GridTile to the free space by tapping it.
+
+## Future implementations:
+
+- Movement storing
+- Customizable puzzle size 
 
 ## Getting Started
 
