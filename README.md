@@ -2,11 +2,11 @@
 
 A classic puzzle game with numbers.
 The "\_" GridTile represents a free space. You can move an adyacent GridTile to the free space by tapping it.
+You can restore movements until the first one. When you win, the screen displays a message with the amount of movements.
 
 ## Future implementations:
 
-- Movement storing
-- Customizable puzzle size 
+- Customizable puzzle size
 
 ## Getting Started
 
