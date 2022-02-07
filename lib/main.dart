@@ -35,10 +35,12 @@ class Puzzle extends StatefulWidget {
 class _PuzzleState extends State<Puzzle> {
   bool completed = false;
   int width = 4;
-  int height = 4;
+  int height = 3;
   List puzzle = [];
   List solution = [];
   int current = 0;
+  int movements = 0;
+  List<List> historial = [];
 
   @override
   void initState() {
@@ -48,21 +50,19 @@ class _PuzzleState extends State<Puzzle> {
     puzzle[current] = "_";
     solution = [...puzzle];
     shufflePuzzle();
+    historial.add([
+      ...puzzle
+    ]); // Dart stores by reference, so i have to use spread operator
   }
 
   void createPuzzle() {
-    int identifier = 0;
-    for (var i = 0; i < height; i++) {
-      for (var j = 0; j < width; j++) {
-        puzzle.add("$identifier");
-        identifier++;
-      }
+    for (var i = 0; i < height * width; i++) {
+      puzzle.add("$i");
     }
   }
 
   void shufflePuzzle() {
     puzzle.removeLast();
-    puzzle.shuffle();
     puzzle.shuffle();
     puzzle.add("_");
   }
@@ -76,11 +76,26 @@ class _PuzzleState extends State<Puzzle> {
     }
   }
 
+  void undoMovement() {
+    if (historial.length > 1) {
+      setState(() {
+        movements++;
+        historial.removeLast();
+        puzzle = [...historial.last];
+      });
+    } else {
+      // TODO:  Message: Movement can't be undone.
+    }
+    current = puzzle.indexOf('_');
+  }
+
   void swapPlaces(tapped) {
     setState(() {
+      movements++;
       puzzle[current] = puzzle[tapped];
       puzzle[tapped] = "_";
-      current = tapped;
+      current = puzzle.indexOf('_');
+      historial.add([...puzzle]); // Using spread operator bc references
     });
     isCompleted();
   }
@@ -96,28 +111,33 @@ class _PuzzleState extends State<Puzzle> {
   @override
   Widget build(BuildContext context) {
     if (completed) {
-      return const Center(child: Text("COMPLETED!!! YAY!!!"));
+      return Center(child: Text("Completed in $movements movements! Yay!"));
     }
     return Center(
       child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: width,
-            childAspectRatio: 1.0,
-            crossAxisSpacing: 4,
-            mainAxisSpacing: 4,
-          ),
-          itemCount: puzzle.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () => isAdyacent(index),
-              child: Container(
-                color: puzzle[index] == "_" ? Colors.grey[300] : Colors.blue,
-                child: Center(
-                  child: Text("${puzzle[index]}"),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: width,
+          childAspectRatio: 1.0,
+          crossAxisSpacing: 4,
+          mainAxisSpacing: 4,
+        ),
+        itemCount: puzzle.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onLongPress: () => undoMovement(),
+            onTap: () => isAdyacent(index),
+            child: Container(
+              color: puzzle[index] == "_" ? Colors.grey[300] : Colors.blue,
+              child: Center(
+                child: Text(
+                  "${puzzle[index]}",
+                  style: const TextStyle(fontSize: 24),
                 ),
               ),
-            );
-          }),
+            ),
+          );
+        },
+      ),
     );
   }
 }
